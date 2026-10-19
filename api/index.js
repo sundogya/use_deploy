@@ -12,11 +12,31 @@ function extractFieldValue(html, labelPattern) {
 }
 
 export default async function handler(request, response) {
-  // 1. 获取请求参数 ?sn=xxxx
-  const { sn, fields } = request.query;
+  // 1. 同时兼容 Netlify (Web Request) 和 Vercel (Node.js Request) 获取参数
+  let sn = "";
+  let fields = "";
 
+  if (request.query) {
+    // 兼容 Vercel 风格
+    sn = request.query.sn;
+    fields = request.query.fields;
+  } else if (request.url) {
+    // 兼容 Netlify / Web API 标准风格
+    const url = new URL(request.url, "http://localhost");
+    sn = url.searchParams.get("sn");
+    fields = url.searchParams.get("fields");
+  }
+
+  // 校验缺少参数的情况
   if (!sn) {
-    return response.status(400).json({ error: "Missing sn parameter" });
+    const errorBody = JSON.stringify({ error: "Missing sn parameter" });
+    if (response && response.status) {
+      return response.status(400).json({ error: "Missing sn parameter" });
+    }
+    return new Response(errorBody, {
+      status: 400,
+      headers: { "Content-Type": "application/json" }
+    });
   }
 
   const requestedFields = fields ? fields.split(",").map(f => f.trim()) : null;
@@ -31,11 +51,19 @@ export default async function handler(request, response) {
     const res = await fetch(targetUrl, { headers });
 
     if (res.status === 429) {
-      return response.status(429).json({ sn, status: 429, error: "Rate limited by USPTO" });
+      const body429 = JSON.stringify({ sn, status: 429, error: "Rate limited by USPTO" });
+      if (response && response.status) {
+        return response.status(429).json({ sn, status: 429, error: "Rate limited by USPTO" });
+      }
+      return new Response(body429, { status: 429, headers: { "Content-Type": "application/json" } });
     }
 
     if (!res.ok) {
-      return response.status(res.status).json({ sn, status: res.status, error: `Upstream error: ${res.statusText}` });
+      const errBody = JSON.stringify({ sn, status: res.status, error: `Upstream error: ${res.statusText}` });
+      if (response && response.status) {
+        return response.status(res.status).json({ sn, status: res.status, error: `Upstream error: ${res.statusText}` });
+      }
+      return new Response(errBody, { status: res.status, headers: { "Content-Type": "application/json" } });
     }
 
     const html = await res.text();
@@ -61,15 +89,32 @@ export default async function handler(request, response) {
       filteredData = allData;
     }
 
-    // 设置 CORS 跨域并返回 JSON
-    response.setHeader("Access-Control-Allow-Origin", "*");
-    return response.status(200).json({
+    const resultData = {
       sn: sn,
       status: 200,
       ...filteredData
+    };
+
+    // 针对 Vercel 模式返回
+    if (response && response.setHeader && response.status) {
+      response.setHeader("Access-Control-Allow-Origin", "*");
+      return response.status(200).json(resultData);
+    }
+
+    // 针对 Netlify 模式返回标准 Response
+    return new Response(JSON.stringify(resultData), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+        "Access-Control-Allow-Origin": "*"
+      }
     });
 
   } catch (err) {
-    return response.status(500).json({ sn, error: err.message || "Unknown error" });
+    const catchBody = JSON.stringify({ sn, error: err.message || "Unknown error" });
+    if (response && response.status) {
+      return response.status(500).json({ sn, error: err.message || "Unknown error" });
+    }
+    return new Response(catchBody, { status: 500, headers: { "Content-Type": "application/json" } });
   }
 }
