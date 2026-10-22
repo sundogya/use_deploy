@@ -101,4 +101,3 @@ export default async function handler(request, context) {
     return new Response(catchBody, { status: 500, headers: { "Content-Type": "application/json" } });
   }
 }
-}
