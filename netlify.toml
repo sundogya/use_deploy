@@ -16,7 +16,7 @@
 
 # 2. 只有来自你的自定义域名的请求，才正常放行打入云函数
 [[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/api/:splat"
+  from = "/api"
+  to = "/.netlify/functions/index"
   status = 200
   force = true
