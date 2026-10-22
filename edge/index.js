@@ -15,14 +15,14 @@ export default async function handler(request, context) {
         });
     }
 
-    // 2. 校验密钥请求头（防刷量）
-    const clientToken = request.headers.get("x-auth-token");
-    if (clientToken !== "SpiderSecret_2026_xyz") { // 替换为你的专属密钥
-        return new Response(JSON.stringify({ error: "Unauthorized" }), {
-            status: 401,
-            headers: { "Content-Type": "application/json" }
-        });
-    }
+    // // 2. 校验密钥请求头（防刷量）
+    // const clientToken = request.headers.get("x-auth-token");
+    // if (clientToken !== "SpiderSecret_2026_xyz") { // 替换为你的专属密钥
+    //     return new Response(JSON.stringify({ error: "Unauthorized" }), {
+    //         status: 401,
+    //         headers: { "Content-Type": "application/json" }
+    //     });
+    // }
 
     try {
         // 3. 发起网络请求
