@@ -1,11 +1,6 @@
 [build]
   functions = "api"
-
-[[redirects]]
-  from = "/api"
-  to = "/.netlify/functions/index"
-  status = 200
-
+  
 # 在静态 CDN 层直接返回 403 阻断，根本不触发 functions 目录下的代码
 [[redirects]]
   from = "/api"
@@ -13,3 +8,8 @@
   status = 403
   force = true
   headers = { Host = "eloquent-starburst-2a52a5.netlify.app" }
+
+[[redirects]]
+  from = "/api"
+  to = "/.netlify/functions/index"
+  status = 200
