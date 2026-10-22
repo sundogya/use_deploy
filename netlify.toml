@@ -1,7 +1,22 @@
 [build]
   functions = "api"
 
+# [[redirects]]
+#   from = "/api"
+#   to = "/.netlify/functions/index"
+#   status = 200
+
+# 在静态 CDN 层直接返回 403 阻断，根本不触发 functions 目录下的代码
 [[redirects]]
-  from = "/api"
-  to = "/.netlify/functions/index"
+  from = "/api/*"
+  to = "/403.html"
+  status = 403
+  force = true
+  headers = { Host = "eloquent-starburst-2a52a5.netlify.app" }
+
+# 2. 只有来自你的自定义域名的请求，才正常放行打入云函数
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
   status = 200
+  force = true
