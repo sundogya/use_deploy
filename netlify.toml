@@ -1,6 +1,10 @@
 [build]
   functions = "api"
+  edge_functions = "edge"
 [[redirects]]
   from = "/api"
   to = "/.netlify/functions/index"
   status = 200
+[[edge_functions]]
+  function = "index"               # 对应 edge/index.js 的文件名（不带扩展名）
+  path = "/edge"                   # 触发访问的 URL 路径
