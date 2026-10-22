@@ -8,7 +8,7 @@
 
 # 在静态 CDN 层直接返回 403 阻断，根本不触发 functions 目录下的代码
 [[redirects]]
-  from = "/api/*"
+  from = "/api"
   to = "/403.html"
   status = 403
   force = true
