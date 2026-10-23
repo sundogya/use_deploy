@@ -1,13 +1,16 @@
 FROM python:3.10-slim
+
 WORKDIR /app
 
+# 安装依赖
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# 复制代码
 COPY . .
 
-ENV PORT=8080
-EXPOSE 8080
+# 暴露 10000 端口
+EXPOSE 10000
 
-# 使用 gunicorn 启动 main.py 中的 Flask 实例 app
-CMD ["gunicorn", "-b", "0.0.0.0:8080", "main:app", "--workers", "1", "--threads", "4", "--timeout", "30"]
+# 直接运行 main.py（触发内部的 uvicorn.run）
+CMD ["python", "main.py"]
