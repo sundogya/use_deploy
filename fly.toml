@@ -1,14 +1,14 @@
-app = "sundogya-gateway"     # 改为全局唯一的应用名（支持小写字母、数字、短横线）
-primary_region = "iad"         
+app = "sundogya-gateway"
+primary_region = "iad"
 
 [http_service]
-  internal_port = 8080         # 内部监听端口
+  internal_port = 10000        # 改为 10000，与 main.py 的默认端口对齐
   force_https = true
-  auto_stop_machines = "stop"  # 无流量自动休眠
-  auto_start_machines = true   # 来请求毫秒级自动唤醒
+  auto_stop_machines = "stop"
+  auto_start_machines = true
   min_machines_running = 0
 
 [[vm]]
-  memory = "256mb"             # 免费套餐 256MB 内存
+  memory = "256mb"
   cpu_kind = "shared"
   cpus = 1
